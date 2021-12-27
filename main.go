@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha512"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -14,7 +16,12 @@ type person struct {
 	First string
 }
 
+var key = []byte{}
+
 func main() {
+	for i := 1; i <= 64; i++ {
+		key = append(key, byte(i))
+	}
 
 	fmt.Println(base64.StdEncoding.EncodeToString([]byte("sguessou:return1771")))
 
@@ -68,4 +75,23 @@ func comparePassword(password string, hashedPass []byte) error {
 		return fmt.Errorf("Invalid password: %w", err)
 	}
 	return nil
+}
+
+func signMessage(msg []byte) ([]byte, error) {
+	h := hmac.New(sha512.New, key)
+	_, err := h.Write(msg)
+	if err != nil {
+		return nil, fmt.Errorf("Error in signMessage while hashing message: %w", err)
+	}
+	signature := h.Sum(nil)
+	return signature, nil
+}
+
+func checkSig(msg, sig []byte) (bool, error) {
+	newSig, err := signMessage(msg)
+	if err != nil {
+		return false, fmt.Errorf("Error in checkSig while getting signature of message: %w", err)
+	}
+	same := hmac.Equal(newSig, sig)
+	return same, nil
 }
