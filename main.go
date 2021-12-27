@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -34,6 +35,8 @@ func main() {
 	}
 
 	fmt.Println("back into a Go data structure", xp2)
+
+	fmt.Println(base64.StdEncoding.EncodeToString([]byte("sguessou:return1771")))
 
 	http.HandleFunc("/encode", foo)
 	http.HandleFunc("/decode", bar)
